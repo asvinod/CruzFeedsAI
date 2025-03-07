@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Plans</title>
+</head>
+<body>
+    <h1>Meal Plans</h1>
+
+    <div id="loading">
+        <p>Fetching your meal plan, please wait...</p>
+    </div>
+
+    <div id="result-container" style="display:none;">
+        <pre id="result-text"></pre>
+    </div>
+
+    <script>
+        // Function to fetch the meal plans periodically
+        function fetchMealPlans() {
+            fetch('/get-meal-plans', {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'Loading...') {
+                    // Keep checking until the task completes
+                    setTimeout(fetchMealPlans, 1000);  // Retry after 1 second
+                } else {
+                    // Update the page with the result
+                    document.getElementById('result-text').textContent = data.result;
+                    document.getElementById('loading').style.display = 'none'; // Hide loading
+                    document.getElementById('result-container').style.display = 'block'; // Show result
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching meal plans:', error);
+            });
+        }
+
+        // Start fetching when the page loads
+        window.onload = fetchMealPlans;
+    </script>
+</body>
+</html>

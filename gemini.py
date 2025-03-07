@@ -1,13 +1,13 @@
 from google import genai
-from main import return_as_str
+from menu import return_as_str
  
 
-client = genai.Client(api_key="AIzaSyA0t4CkoZyv11xVAkz_zepqBNLuuCWBsDI")
-menu = return_as_str() 
-test_list=["Create a few meal options from the provided menu:" + menu]
-response = client.models.generate_content(
-    model="gemini-2.0-flash",
-    contents=test_list
-)
+def call_to_gemini(prompt):
+    client = genai.Client(api_key="AIzaSyA0t4CkoZyv11xVAkz_zepqBNLuuCWBsDI")
+    menu = return_as_str() 
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
 
-print(response.text)    
+    return response.text 
