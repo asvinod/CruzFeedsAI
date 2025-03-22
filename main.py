@@ -1,8 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from gemini import call_to_gemini
-from menu import return_as_str
+from menu import return_as_str, get_menu
+from celery import Celery 
 
 app = Flask(__name__)
+
+app.config['CELERY_BROKER_URL'] = "redis://localhost:6379/0"
+app.config['CELERY_RESULT_BACKEND'] = "redis://localhost:6379/0"
+
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
+
 app.secret_key = "your_secret_key" 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -34,23 +42,25 @@ def select_dietary_restrictions():
         selected_restrictions = request.form.getlist('restrictions')
         session['selected_restrictions'] = selected_restrictions
         print(f"Restrictions Selected: {selected_restrictions}")
-        return redirect(url_for('display_meal_plans'))
+        return redirect(url_for('loading_meal_plans'))
     return render_template('select_dietary_restrictions.html', restrictions=restrictions)
 
-@app.route('/meal-plans')
-def display_meal_plans():
+@celery.task 
+def scrape_website_task(dining_hall, meal_selection, selected_restrictions):
+    return return_as_str(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions)
+
+@app.route('/load-plans')
+def loading_meal_plans(): 
     dining_hall = session.get('dining_hall', 'Unknown')
     meal_selection = session.get('meal_selection', 'Unknown')
     selected_restrictions = session.get('selected_restrictions', 'Unknown')
+    print(get_menu(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions))
+    menu = scrape_website_task.delay(dining_hall, meal_selection, selected_restrictions) 
+    print(menu)
+    return render_template('meal_plans.html')
 
-    #menu = return_as_str(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions)
-    #prompt = "Create meal options with their nutritional information with the given menu: " + menu
-
-    #result = call_to_gemini(prompt)
-    #print(result)
-    result = 'test'
-
-    return render_template('meal_plans.html', result="Hello World")
+#@app.route('/generate-plans')
+#def generating_meal_plans():
 
 
 if __name__ == '__main__':
