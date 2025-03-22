@@ -1,0 +1,20 @@
+services:
+  # Redis Service
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+networks:
+  feedback_network:
+    driver: bridge  # Specify the type of network (bridge is the default)
+volumes:
+  redis_data:
