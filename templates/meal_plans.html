@@ -2,45 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal Plans</title>
+    <title>Loading Meal Plans</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1>Meal Plans</h1>
-
-    <div id="loading">
-        <p>Fetching your meal plan, please wait...</p>
-    </div>
-
-    <div id="result-container" style="display:none;">
-        <pre id="result-text"></pre>
-    </div>
-
+    <h1>Loading Meal Plans...</h1>
+    <div id="progress"></div>
+    <div id="status"></div>
+    
     <script>
-        // Function to fetch the meal plans periodically
-        function fetchMealPlans() {
-            fetch('/get-meal-plans', {
-                method: 'GET',
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.result === 'Loading...') {
-                    // Keep checking until the task completes
-                    setTimeout(fetchMealPlans, 1000);  // Retry after 1 second
+        function checkTaskStatus() {
+            $.getJSON('/status/{{ task_id }}', function(data) {
+                if (data.state == 'PENDING' || data.state == 'PROGRESS') {
+                    $('#status').text(data.status);
+                    if (data.state == 'PROGRESS') {
+                        var progress = (data.current / data.total) * 100;
+                        $('#progress').text('Progress: ' + Math.round(progress) + '%');
+                    }
+                    setTimeout(checkTaskStatus, 1000);
                 } else {
-                    // Update the page with the result
-                    document.getElementById('result-text').textContent = data.result;
-                    document.getElementById('loading').style.display = 'none'; // Hide loading
-                    document.getElementById('result-container').style.display = 'block'; // Show result
+                    $('#status').text(data.status);
+                    if (data.state == 'SUCCESS') {
+                        $('#progress').text(data.result);
+                    }
                 }
-            })
-            .catch(error => {
-                console.error('Error fetching meal plans:', error);
             });
         }
-
-        // Start fetching when the page loads
-        window.onload = fetchMealPlans;
+        checkTaskStatus();
     </script>
 </body>
 </html>

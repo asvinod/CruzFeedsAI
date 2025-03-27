@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from gemini import call_to_gemini
 from menu import return_as_str, get_menu
 from celery import Celery 
+import time
 
 app = Flask(__name__)
 
@@ -40,24 +41,56 @@ def select_dietary_restrictions():
 
     if request.method == 'POST':
         selected_restrictions = request.form.getlist('restrictions')
-        session['selected_restrictions'] = selected_restrictions
-        print(f"Restrictions Selected: {selected_restrictions}")
-        return redirect(url_for('loading_meal_plans'))
+        dining_hall = session.get('dining_hall', 'Unknown')
+        meal_selection = session.get('meal_selection', 'Unknown')
+        arguments = [selected_restrictions, dining_hall, meal_selection]
+
+        task = scrape_website_task.apply_async(args=[dining_hall, meal_selection, selected_restrictions])
+        
+        return redirect(url_for('loading_meal_plans', task_id=task.id))
     return render_template('select_dietary_restrictions.html', restrictions=restrictions)
 
-@celery.task 
-def scrape_website_task(dining_hall, meal_selection, selected_restrictions):
-    return return_as_str(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions)
+@celery.task (bind=True)
+def scrape_website_task(self, dining_hall, meal_selection, selected_restrictions):
+    menu = call_to_gemini(return_as_str(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions))
+    #time.sleep(5)  # Simulating a long-running task
+    
+    # Returning some result for demonstration
+    return {'status': 'Task completed!', 'result': 'hi'}
 
-@app.route('/load-plans')
-def loading_meal_plans(): 
-    dining_hall = session.get('dining_hall', 'Unknown')
-    meal_selection = session.get('meal_selection', 'Unknown')
-    selected_restrictions = session.get('selected_restrictions', 'Unknown')
-    print(get_menu(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions))
-    menu = scrape_website_task.delay(dining_hall, meal_selection, selected_restrictions) 
-    print(menu)
-    return render_template('meal_plans.html')
+@app.route('/loading-meal-plans')
+def loading_meal_plans():
+    task_id = request.args.get('task_id')
+    return render_template('meal_plans.html', task_id=task_id)
+
+@app.route('/status/<task_id>')
+def task_status(task_id):
+    task = scrape_website_task.AsyncResult(task_id)
+    
+    if task.state == 'PENDING':
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # This is the exception raised
+        }
+    return jsonify(response)
 
 #@app.route('/generate-plans')
 #def generating_meal_plans():
