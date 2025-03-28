@@ -3,5 +3,4 @@ CruzFeedsAI is a web application designed to personalize meal plans based on the
 
 Next steps:
 1. Provide clean display for generated meal options
-2. Create loading screen between meal option generation and display
-3. Host website 
+2. Host website 
