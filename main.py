@@ -52,11 +52,15 @@ def select_dietary_restrictions():
 
 @celery.task (bind=True)
 def scrape_website_task(self, dining_hall, meal_selection, selected_restrictions):
-    menu = call_to_gemini(return_as_str(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions))
+    prompt = "Given the following menu, generate some healthy meal options: "
+    #meal_options = call_to_gemini(prompt + return_as_str(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions))
+    #print(meal_options)
+    menu = "menu: " + return_as_str(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions)
+    meal_plans = call_to_gemini(menu)
     #time.sleep(5)  # Simulating a long-running task
     
     # Returning some result for demonstration
-    return {'status': 'Task completed!', 'result': 'hi'}
+    return {'status': 'Task completed!', 'result': meal_plans}
 
 @app.route('/loading-meal-plans')
 def loading_meal_plans():
