@@ -11,7 +11,6 @@ def get_menu(url="https://nutrition.sa.ucsc.edu/location.aspx", dining_hall="Joh
     )
 
     dining_halls_list_html = session.get(url)
-    print(dining_halls_list_html)
     dining_halls_list = parse_dining_halls(dining_halls_list_html.text)
 
     for dining_hall_url in dining_halls_list:
@@ -27,7 +26,6 @@ def get_menu(url="https://nutrition.sa.ucsc.edu/location.aspx", dining_hall="Joh
                         item_html = session.get(header_url + item)
                         item_information = parse_nutritional_info(item_html.text)
                         menu_list.append(item_information)
-                        #print(item_information)
     menu_list = filter_by_restrictions(menu_list, dietary_restrictions)
     return menu_list
 
@@ -64,16 +62,6 @@ def return_as_str(url="https://nutrition.sa.ucsc.edu/location.aspx", dining_hall
 
 def main():
     print(return_as_str())
-    """
-    url = "https://nutrition.sa.ucsc.edu/label.aspx?locationNum=40&locationName=John+R.+Lewis+%26+College+Nine+Dining+Hall&dtdate=02%2f27%2f2025&RecNumAndPort=888815*2"
-    session = requests.Session()
-    session.headers.update(
-        {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0'}
-    )
-
-    dining_halls_list_html = session.get(url)
-    data = parse_nutritional_info(dining_halls_list_html.text)
-    print(data)"""
 
 if __name__ == "__main__":
     main()

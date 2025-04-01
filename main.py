@@ -45,8 +45,8 @@ def select_dietary_restrictions():
         meal_selection = session.get('meal_selection', 'Unknown')
         arguments = [selected_restrictions, dining_hall, meal_selection]
 
-        workflow = chain(scrape_menu.s(dining_hall, meal_selection, selected_restrictions) |
-                         generate_meal_options.s())
+        workflow = chain(scrape_menu.s(dining_hall, meal_selection, selected_restrictions),
+                 generate_meal_options.s())
                     
         task = workflow.apply_async()
         
@@ -60,6 +60,7 @@ def scrape_menu(dining_hall, meal_selection, selected_restrictions):
 
 @celery.task
 def generate_meal_options(menu):
+    print(menu)
     prompt = "Given the following menu, generate some healthy meal options: "
     meal_options = call_to_gemini(prompt + menu)
 
@@ -74,8 +75,6 @@ def loading_meal_plans():
 def task_status(task_id):
     task = generate_meal_options.AsyncResult(task_id)
     
-    task = generate_meal_options.AsyncResult(task_id)  # Now tracking the final task
-
     if task.state == 'PENDING':
         response = {'state': task.state, 'status': 'Pending...'}
     elif task.state != 'FAILURE':
