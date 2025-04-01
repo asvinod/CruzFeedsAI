@@ -11,6 +11,7 @@ def get_menu(url="https://nutrition.sa.ucsc.edu/location.aspx", dining_hall="Joh
     )
 
     dining_halls_list_html = session.get(url)
+    print(dining_halls_list_html)
     dining_halls_list = parse_dining_halls(dining_halls_list_html.text)
 
     for dining_hall_url in dining_halls_list:
@@ -73,3 +74,6 @@ def main():
     dining_halls_list_html = session.get(url)
     data = parse_nutritional_info(dining_halls_list_html.text)
     print(data)"""
+
+if __name__ == "__main__":
+    main()
