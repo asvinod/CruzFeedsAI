@@ -61,7 +61,7 @@ def return_as_str(url="https://nutrition.sa.ucsc.edu/location.aspx", dining_hall
     return menu_str 
 
 def main():
-    print(return_as_str())
+    print(return_as_str(dietary_restrictions=['Peanuts', 'Tree Nuts']))
 
 if __name__ == "__main__":
     main()

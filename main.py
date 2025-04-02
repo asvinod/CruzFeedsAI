@@ -56,12 +56,14 @@ def select_dietary_restrictions():
 @celery.task 
 def scrape_menu(dining_hall, meal_selection, selected_restrictions):
     menu = return_as_str(dining_hall=dining_hall, meal=meal_selection, dietary_restrictions=selected_restrictions)    
+    
     return menu
 
 @celery.task
 def generate_meal_options(menu):
     print(menu)
-    prompt = "Given the following menu, generate some healthy meal options: "
+    prompt = "Generate 5 meal options with the given menu: (Note that you don't have to generate breakfast/lunch/dinner specific meal options as the given menu is already filtered for a certain type)"
+
     meal_options = call_to_gemini(prompt + menu)
 
     return meal_options
