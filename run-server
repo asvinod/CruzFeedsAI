@@ -1,0 +1,14 @@
+#!/bin/bash
+PROJ_DIR=$(pwd)
+DOCKER_COMPOSE_FILE="$PROJ_DIR/docker-compose.yml"
+
+docker-compose -f "$DOCKER_COMPOSE_FILE" up -d redis --remove-orphans
+
+python --version
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+celery -A main.celery worker -l info &
+
+python main.py 
