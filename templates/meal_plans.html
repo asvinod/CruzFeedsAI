@@ -63,7 +63,32 @@
 <body>
     <div class="container">
         <h1>Meal Plans</h1>
-        <ul>
+        <div class="meal-options">
+            {% for meal in meal_options %}
+            <div class="meal-card">
+                <div class="meal-details">
+                    <strong>{{ meal['meal_name'] }}</strong>
+                    <div class="nutritional-info">
+                        Protein: {{ meal['protein'] }}<br>
+                        Carbs: {{ meal['carbs'] }}<br>
+                        Calories: {{ meal['calories'] }}<br>
+                    </div>
+                    <strong>Breakdown</strong>
+                    <div class="food-breakdown">
+                        {% for item, serving in meal['food_breakdown'].items() %}
+                            <div>{{ item }}: {{ serving }}</div>
+                        {% endfor %}
+                    </div>                                                      
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+
+<!--
+<ul>
             {% for meal in meal_options %}
             <li>
                 <strong>{{ meal['meal_name'] }}</strong><br>
@@ -79,6 +104,4 @@
             </li>
             {% endfor %}
         </ul>
-    </div>
-</body>
-</html>
+-->

@@ -89,8 +89,8 @@ def return_as_str():
     return menu_str 
 
 def main():
-    #save_all_menus()
-    filter_csv("John", "Dinner", ["Vegan"])
-    filter_csv("Cowell", "Dinner", ["Vegetarian"])
+    save_all_menus()
+    #filter_csv("John", "Dinner", ["Vegan"])
+    #filter_csv("Cowell", "Dinner", ["Vegetarian"])
 if __name__ == "__main__":
     main()
