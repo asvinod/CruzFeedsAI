@@ -5,7 +5,7 @@ from menu import return_as_str, get_menu
 #import time
 from storage import filter_csv
 import os
-import json
+import json5
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
@@ -70,11 +70,10 @@ def generate_meal_options():
     menu = df.write_csv()
     #print(menu)
 
-    prompt = "Given a menu, generate 5 high-protein healthy meal options combinging items from the menu, and return in JSON format. E.g. meal name: _, protein: _, carbs: _, calories _, etc.. Make sure to include the item breakdown with their serving sizes as well. Here is the menu: " + menu
+    prompt = "Given a menu, generate 5 high-protein healthy meal options combinging items from the menu, and return in JSON format. E.g. meal name: _, protein: _, carbs: _, calories _, etc.. Make sure to include the item breakdown with their serving sizes as well. Also, no need to tell them the dietary restrictions. Here is the menu: " + menu
     meal_options = call_to_gemini(prompt + menu)
-    #print(meal_options) 
-    meal_options_dict = json.loads(meal_options) 
-
+    print(meal_options[8:len(meal_options) - 4]) 
+    meal_options_dict = json5.loads(meal_options) 
 
     return render_template('meal_plans.html', meal_options=meal_options_dict)
 
