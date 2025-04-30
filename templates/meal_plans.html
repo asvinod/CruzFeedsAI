@@ -63,6 +63,11 @@
 <body>
     <div class="container">
         <h1>Meal Plans</h1>
+        
+        <form id="backToStart" method="POST">
+            <button id="submitBtn" type="submit">Back To Start</button>
+        </form>
+
         <div class="meal-options">
             {% for meal in meal_options %}
             <div class="meal-card">
