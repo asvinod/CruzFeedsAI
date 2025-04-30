@@ -41,6 +41,8 @@ def select_dietary_restrictions():
     "Vegan", "Halal", "Beef", "Pork"]
 
     if request.method == 'POST':
+        selected_restrictions = request.form.getlist('restrictions')
+        session['selected_restrictions'] = selected_restrictions  
         # selected_restrictions = request.form.getlist('restrictions')
         # dining_hall = session.get('dining_hall', 'Unknown')
         # meal_selection = session.get('meal_selection', 'Unknown')
@@ -56,14 +58,18 @@ def select_dietary_restrictions():
 
 @app.route('/meal-plans', methods = ['GET', 'POST'])
 def generate_meal_options():
-    selected_restrictions = request.form.getlist('restrictions')
+    selected_restrictions = session.get('selected_restrictions', [])
     dining_hall = session.get('dining_hall', 'Unknown')
     meal_selection = session.get('meal_selection', 'Unknown')
+    args = [selected_restrictions, dining_hall, meal_selection]
+    print("Dietary Restrictions:", selected_restrictions) 
 
     df = filter_csv(dining_hall, meal_selection, selected_restrictions)
+    print(df)
     menu = df.write_csv()
+    #print(menu)
 
-    prompt = "Given a menu, generate 5 meal options and return in JSON format. E.g. meal name: _, protein: _, carbs: _, calories _, etc.. Here is the menu: " + menu
+    prompt = "Given a menu, generate 5 high-protein healthy meal options combinging items from the menu, and return in JSON format. E.g. meal name: _, protein: _, carbs: _, calories _, etc.. Here is the menu: " + menu
     meal_options = call_to_gemini(prompt + menu)
 
     return render_template('meal_plans.html', meal_options=meal_options)

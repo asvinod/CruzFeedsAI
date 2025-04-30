@@ -26,12 +26,12 @@ def filter_csv(dining_hall, meal, dietary_restrictions):
     
     filtered_df = df.filter(mask)
 
-    if True:
-        filtered_out_df = df.filter(~mask)
-        print("\n--- FILTERED OUT ROWS ---")
-        print(filtered_out_df)
-        print("\n--- KEPT ROWS ---")
-        print(filtered_df)
+    # if True:
+    #     filtered_out_df = df.filter(~mask)
+    #     print("\n--- FILTERED OUT ROWS ---")
+    #     print(filtered_out_df)
+    #     print("\n--- KEPT ROWS ---")
+    #     print(filtered_df)
 
     return filtered_df
 
