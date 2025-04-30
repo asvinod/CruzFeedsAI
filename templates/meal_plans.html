@@ -65,13 +65,18 @@
         <h1>Meal Plans</h1>
         <ul>
             {% for meal in meal_options %}
-                <li>
-                    <strong>{{ meal['meal_name'] }}</strong><br>
-                    Protein: {{ meal['protein'] }}<br>
-                    Carbs: {{ meal['carbs'] }}<br>
-                    Calories: {{ meal['calories'] }} <br>
-                    Breakdown: {{ meal['items']}}
-                </li>
+            <li>
+                <strong>{{ meal['meal_name'] }}</strong><br>
+                Protein: {{ meal['protein'] }}<br>
+                Carbs: {{ meal['carbs'] }}<br>
+                Calories: {{ meal['calories'] }}<br>
+                Breakdown:
+                <ul>
+                    {% for item, serving in meal['food_breakdown'].items() %}
+                        <li>{{ item }}: {{ serving }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
             {% endfor %}
         </ul>
     </div>
